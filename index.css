@@ -26,6 +26,10 @@
     transition: unset;
 }
 
+.slider-wrapper.long-anim {
+    transition: 1.6s transform;
+}
+
 .slider-item {
     width: 400px;
     height: 200px;
@@ -75,4 +79,26 @@
 
 #prev {
     left: 10px;
+}
+
+.slider-preview {
+    display: flex;
+    position: absolute;
+    bottom: 10px;
+    gap: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.slider-preview__item {
+    width: 24px;
+    height: 24px;
+    border: 4px solid red;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.slider-preview__item.active {
+    border-color: yellow;
+    background-color: yellow;
 }

@@ -30,8 +30,46 @@ function slider(selector, options = {}) {
   const wrapper = slider.querySelector(wrapperSelector);
   const items = wrapper.querySelectorAll(itemSelector);
   const itemsCount = items.length;
-
   let sliderWidth, itemWidth, position, isEnd, isStart, intervalID, slideIndex = 0;
+
+  generatePreviewItems();
+
+  const previewWrapperArray =  Array.from(slider.querySelector('.slider-preview').children);
+
+  togglePreviewItemClick();
+
+  function togglePreviewItemClick() {
+    previewWrapperArray[slideIndex].classList.add('active');
+
+    previewWrapperArray.forEach((previewItem, index, array) => {
+      previewItem.addEventListener('click', () => {
+        selectSlide(index);
+      });
+    });
+
+  }
+
+  function clearPreviewItemsActive() {
+    previewWrapperArray.forEach(item => item.classList.remove('active'));
+    previewWrapperArray[slideIndex].classList.add('active');
+  }
+
+
+  function generatePreviewItems() {
+    const previewItemsCount = calculatePreviewItemsCount();
+    
+    const previewItemsWrapper = createElementWithOptions('div');
+    previewItemsWrapper.classList.add('slider-preview');
+
+    slider.insertAdjacentElement('beforeend', previewItemsWrapper);
+
+    for (let i = 0; i < previewItemsCount; i++) {
+      const previewItem = createElementWithOptions('span');
+      previewItem.classList.add('slider-preview__item');
+
+      previewItemsWrapper.insertAdjacentElement('beforeend', previewItem);
+    }
+  }
 
   const caluclateSliderItemWidth = () => {
     const previousWidth = itemWidth;
@@ -45,6 +83,7 @@ function slider(selector, options = {}) {
     position = newPosition;
     wrapper.classList.add("no-anim");
     moveWrapper();
+
     setTimeout(() => {
       wrapper.classList.remove("no-anim");
     }, 0);
@@ -64,7 +103,7 @@ function slider(selector, options = {}) {
 
   function calculateDescendingDirection() {
     slideIndex--;
-    console.log(slideIndex);
+  
     const leftItems = Math.abs(position / itemWidth);
 
     position +=
@@ -74,6 +113,7 @@ function slider(selector, options = {}) {
 
     moveWrapper();
     rangeCheck();
+    clearPreviewItemsActive();
   }
 
   nextArrowButton.addEventListener("click", () => {
@@ -86,7 +126,6 @@ function slider(selector, options = {}) {
 
   function calculateAscendingDirection() {
     slideIndex++;
-    console.log(slideIndex);
     const leftItems =
       itemsCount - (Math.abs(position / itemWidth) + slidesPerPage);
     position -=
@@ -95,6 +134,7 @@ function slider(selector, options = {}) {
         : itemWidth * leftItems;
     moveWrapper();
     rangeCheck();
+    clearPreviewItemsActive();
   }
 
   function moveWrapper() {
@@ -164,6 +204,36 @@ function slider(selector, options = {}) {
   }
 
   autoSlide && triggerAutoSlide();
+
+  function calculatePreviewItemsCount() {
+    return itemsCount - slidesPerPage + 1;
+  }
+
+  function createElementWithOptions(elementName, options) {
+    return Object.assign(document.createElement(elementName), options);
+  }
+
+  function selectSlide(index) {
+    if(Math.abs(index - slideIndex) > 2) {
+      wrapper.classList.add("long-anim");
+    }
+
+    if (autoSlide) {
+      clearInterval(intervalID);
+      triggerAutoSlide();
+    }
+   
+
+    slideIndex = index;
+    position = slideIndex * itemWidth * -1;
+    moveWrapper();
+    rangeCheck();
+
+    clearPreviewItemsActive();
+    setTimeout(() => {
+      wrapper.classList.remove("long-anim");
+    }, 0)
+  }
 }
 
 slider("slider", {
@@ -173,7 +243,7 @@ slider("slider", {
   nextArrow: "next",
   slidesPerSlide: 1,
   slidesPerPage: 2,
-  autoSlide: false,
+  autoSlide: true,
   timeout: 8000,
-  loop: false,
+  loop: true,
 });
